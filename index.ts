@@ -1,6 +1,6 @@
 import { createBuffer } from '@posthog/plugin-contrib'
 import { Plugin, PluginMeta, PluginEvent } from '@posthog/plugin-scaffold'
-import { Client, QueryResult } from 'pg'
+import { Client, QueryResult, Pool } from 'pg'
 
 type PostgresPlugin = Plugin<{
     global: {
@@ -65,7 +65,7 @@ export const jobs: PostgresPlugin['jobs'] = {
         const events = (await executeQuery(
             `SELECT * FROM posthog_event WHERE team_id = $1 AND timestamp >= $2 AND timestamp < $3 AND event='$pageview'`,
             [Number(config.teamId), dateFrom.toISOString(), dateTo.toISOString()],
-            config
+            global
         )).rows
 
         for (const event of events) {
@@ -94,10 +94,6 @@ export const setupPlugin: PostgresPlugin['setupPlugin'] = async (meta) => {
             }
         }
     }
-
-}
-
-const executeQuery = async (query: string, values: any[], config: PostgresMeta['config']): Promise<Error | QueryResult> => {
     const basicConnectionOptions = config.databaseUrl
         ? {
               connectionString: config.databaseUrl,
@@ -109,23 +105,44 @@ const executeQuery = async (query: string, values: any[], config: PostgresMeta['
               database: config.dbName,
               port: parseInt(config.port),
           }
-    const pgClient = new Client({
+    global.pgPool = new Pool({
         ...basicConnectionOptions,
         ssl: {
             rejectUnauthorized: config.hasSelfSignedCert === 'No',
         },
     })
 
-    await pgClient.connect()
+}
+
+const executeQuery = async (query: string, values: any[], global: PostgresMeta['global']): Promise<Error | QueryResult> => {
+    // const basicConnectionOptions = config.databaseUrl
+    //     ? {
+    //           connectionString: config.databaseUrl,
+    //       }
+    //     : {
+    //           user: config.dbUsername,
+    //           password: config.dbPassword,
+    //           host: config.host,
+    //           database: config.dbName,
+    //           port: parseInt(config.port),
+    //       }
+    // const pgClient = new Client({
+    //     ...basicConnectionOptions,
+    //     ssl: {
+    //         rejectUnauthorized: config.hasSelfSignedCert === 'No',
+    //     },
+    // })
+
+    // await pgClient.connect()
 
     let error: Error | null = null
     try {
-        return await pgClient.query(query, values)
+        return await global.pgPool.query(query, values)
     } catch (err) {
         error = err as Error
     }
 
-    await pgClient.end()
+    // await pgClient.end()
 
     return error
 }
