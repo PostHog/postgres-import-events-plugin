@@ -68,8 +68,11 @@ export const jobs: PostgresPlugin['jobs'] = {
         )).rows
 
         for (const event of events) {
+            const c = await caches.incr()
             console.log(event)
-            // posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id })
+            if (c === 1) {
+                posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id })
+            }
         }
 
         const newDateFrom = new Date(dateFrom.getTime() + 60 * 1000)
