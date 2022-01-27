@@ -54,6 +54,7 @@ export const jobs: PostgresPlugin['jobs'] = {
         }).runNow()
     },
     importEvents: async ({ dateFrom, dateTo }, { config, global }) => {
+        console.log(dateFrom)
         if (dateFrom.getTime() > global.limitDate.getTime()) {
             console.log('done, exiting')
             return
