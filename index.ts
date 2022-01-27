@@ -69,7 +69,7 @@ export const jobs: PostgresPlugin['jobs'] = {
         )).rows
 
         if (events && events.length >= 0) {
-
+            console.log(`Importing {events.length} events`)
             for (const event of events) {
                 posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id, timestamp: event.timestamp })
             }
