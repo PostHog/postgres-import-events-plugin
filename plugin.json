@@ -5,7 +5,7 @@
     "main": "index.ts",
     "posthogVersion": ">= 1.29.0",
     "publicJobs": {
-        "test": {
+        "Import events": {
             "payload": {
                 "dateFrom": { 
                     "type": "string"
