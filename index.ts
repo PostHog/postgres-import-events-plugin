@@ -53,7 +53,7 @@ export const jobs: PostgresPlugin['jobs'] = {
             dateTo: new Date(new Date(dateFrom).getTime() + 60 * 1000)
         }).runNow()
     },
-    importEvents: async ({ dateFrom, dateTo }, { config, global }) => {
+    importEvents: async ({ dateFrom, dateTo }, { config, global, jobs }) => {
         dateFrom = new Date(dateFrom)
         dateTo = new Date(dateTo)
         if (dateFrom.getTime() > global.limitDate.getTime()) {
