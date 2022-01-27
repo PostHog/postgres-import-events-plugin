@@ -53,7 +53,7 @@ export const jobs: PostgresPlugin['jobs'] = {
             dateTo: new Date(new Date(dateFrom).getTime() + 60 * 1000)
         }).runNow()
     },
-    importEvents: async ({ dateFrom, dateTo }, { config, global, jobs }) => {
+    importEvents: async ({ dateFrom, dateTo }, { config, global, jobs, cache }) => {
         dateFrom = new Date(dateFrom)
         dateTo = new Date(dateTo)
         if (dateFrom.getTime() > global.limitDate.getTime()) {
@@ -68,7 +68,7 @@ export const jobs: PostgresPlugin['jobs'] = {
         )).rows
 
         for (const event of events) {
-            const c = await caches.incr()
+            const c = await cache.incr()
             console.log(event)
             if (c === 1) {
                 posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id })
