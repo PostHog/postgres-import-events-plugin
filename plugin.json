@@ -59,13 +59,6 @@
             "visible_if": [["databaseUrl", ""]]
         },
         {
-            "key": "tableName",
-            "name": "Table name",
-            "type": "string",
-            "default": "posthog_event",
-            "hint": "The plugin will create a table with this name to store the events in"
-        },
-        {
             "key": "dbUsername",
             "name": "Username available to the plugin for accessing your database instance",
             "type": "string",
