@@ -46,8 +46,8 @@ interface ImportEventsJobPayload {
 
 
 export const jobs: PostgresPlugin['jobs'] = {
-    'Import events': async ({ dateFrom, dateTo }: ImportEventsJobPayload, { storage, jobs, global }) => {
-        global.limitDate = new Date(dateTo)
+    'Import events': async ({ dateFrom, dateTo }: ImportEventsJobPayload, { storage, jobs, global, cache }) => {
+        await cache.set('max', new Date(dateTo).getTime())
         await jobs['importEvents']({
             dateFrom: new Date(dateFrom),
             dateTo: new Date(new Date(dateFrom).getTime() + 60 * 1000)
@@ -56,7 +56,8 @@ export const jobs: PostgresPlugin['jobs'] = {
     importEvents: async ({ dateFrom, dateTo }, { config, global, jobs, cache }) => {
         dateFrom = new Date(dateFrom)
         dateTo = new Date(dateTo)
-        if (dateFrom.getTime() > global.limitDate.getTime()) {
+        const limitDate = await cache.get('max')
+        if (dateFrom.getTime() > Number(limitDate)) {
             console.log('done, exiting')
             return
         }
