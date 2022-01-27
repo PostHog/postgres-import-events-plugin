@@ -71,7 +71,7 @@ export const jobs: PostgresPlugin['jobs'] = {
         if (events && events.length >= 0) {
 
             for (const event of events) {
-                posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id })
+                posthog.capture(event.event, { ...event.properties, distinctId: event.distinct_id, timestamp: event.timestamp })
             }
         }
 
